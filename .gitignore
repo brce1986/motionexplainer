@@ -1,0 +1,19 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.key
+*key*.txt
+
+# media and work output (client material and references are never part of the repo)
+*.mp4
+*.mov
+*.webm
+*.mp3
+*.wav
+refs/
+qa/
+.hyperframes/
+node_modules/
+__pycache__/
+*.pyc

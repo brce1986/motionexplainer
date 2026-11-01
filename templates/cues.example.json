@@ -1,0 +1,21 @@
+{
+  "vo_offset": 1.0,
+  "bpm": 107.2,
+  "anchor": 6.75,
+  "final_bar": 20,
+  "breakdowns": [11, 19],
+  "tail": 8.9,
+  "sfx": [
+    { "type": "pop", "t": 0.15 },
+    { "type": "pop", "t": 1.4 },
+    { "type": "whoosh", "t": 6.75 },
+    { "type": "tick", "t": 15.87 },
+    { "type": "tap", "t": 19.23 },
+    { "type": "coin", "t": 20.59 },
+    { "type": "success", "t": 23.23 },
+    { "type": "bell", "t": 26.05 },
+    { "type": "whoosh_down", "t": 24.35 },
+    { "type": "riser_to_final", "t": 43.1 },
+    { "type": "impact_final", "t": 0 }
+  ]
+}
