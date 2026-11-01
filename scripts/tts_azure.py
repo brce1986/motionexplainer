@@ -70,7 +70,13 @@ def main():
     try:
         data = urllib.request.urlopen(req, timeout=180).read()
     except urllib.error.HTTPError as e:
-        raise SystemExit(f"Azure TTS failed: HTTP {e.code} {e.read()[:300]!r}")
+        hint = ""
+        if e.code in (401, 403):
+            hint = (f"\nThe key was rejected in region '{region}'. A Speech key only works in its resource's region: "
+                    "check AZURE_SPEECH_REGION in the Azure portal (Speech resource > Keys and Endpoint). "
+                    "Try tts_gemini.py if GEMINI_API_KEY is set; otherwise STOP and ask the user for a working key. "
+                    "Never fall back to an OS voice.")
+        raise SystemExit(f"Azure TTS failed: HTTP {e.code} {e.read()[:300]!r}{hint}")
     open(a.out, "wb").write(data)
     print(f"wrote {a.out} ({len(data) // 1024} KB) with {a.voice}")
 

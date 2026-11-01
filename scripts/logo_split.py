@@ -3,7 +3,11 @@
 - Every <path>/<polygon>/<rect>/<circle> keeps its original attributes (fills, gradients) and gets class "lg".
 - Paths filled with a gradient (url(#...)) are "marks": the first one gets id="lg-mark" (spin it in, reuse it as a seal).
 - The other parts are grouped in document order: --groups 5,2,2,2 -> classes lg-a (5 parts), lg-b (2), lg-c, lg-d.
-- <defs> (gradients) are kept; <metadata> and comments are dropped; CSS classes from <style> are resolved to fills."""
+- <defs> (gradients) are kept; <metadata> and comments are dropped; CSS classes from <style> are resolved to fills.
+- Shapes inside <clipPath>/<mask>/<pattern>/<symbol> are geometry, not artwork: they are dropped
+  (a real case: a Wikimedia logo's clipPath rectangle showed up as a solid box in the end card).
+- Exits with an error when a <g transform> or a nested <svg> would be flattened (positions would be lost),
+  and warns when the logo has fewer than 3 parts (then reveal it with a mask wipe; never fall back to an <img>)."""
 import argparse
 import re
 import sys
@@ -15,6 +19,11 @@ ap.add_argument("--id", default="logoSvg")
 a = ap.parse_args()
 src = open(a.svg, encoding="utf-8").read()
 src = re.sub(r"<metadata>.*?</metadata>|<!--.*?-->|<\?xml.*?\?>", "", src, flags=re.S)
+src = re.sub(r"<(clipPath|mask|pattern|symbol)\b.*?</\1>", "", src, flags=re.S)
+if re.search(r"<g\b[^>]*\btransform=", src) or len(re.findall(r"<svg\b", src)) > 1:
+    sys.exit("This SVG uses <g transform> or a nested <svg>: flattening it would move the parts. "
+             "Bake the transforms first (Inkscape: Edit > Select All > Path > Object to Path, then save as plain SVG; "
+             "or `npx svgo --config='{\"plugins\":[\"preset-default\",\"convertTransform\"]}' logo.svg`), then rerun.")
 vb = re.search(r'viewBox="([^"]+)"', src).group(1)
 styles = dict(re.findall(r"\.([\w-]+)\s*\{\s*fill:\s*([^;}]+)", src))      # .cls-1 { fill: url(#g) }
 defs = "".join(re.findall(r"<linearGradient.*?</linearGradient>|<radialGradient.*?</radialGradient>", src, flags=re.S))
@@ -44,5 +53,8 @@ for tag, attrs in parts:
     out.append(f'<{tag} class="{cls}" fill="{fill}" {attrs}/>')
 svg = f'<svg id="{a.id}" viewBox="{vb}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible"><defs>{defs}</defs>' + "".join(out) + "</svg>"
 sys.stdout.write(svg + "\n")
+if len(parts) < 3:
+    sys.stderr.write("WARNING: fewer than 3 parts. The letters are one compound path, so they can't rise in groups. "
+                     "Animate the whole SVG with a clip-path wipe + rise, and the mark (if separate) on its own.\n")
 sys.stderr.write(f"{len(parts)} parts, mark: {'yes' if mark_done else 'no'}, viewBox {vb}\n"
                  "Spin the mark around its own centre: compute it from the path bbox (svgOrigin in viewBox units).\n")

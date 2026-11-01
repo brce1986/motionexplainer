@@ -2,6 +2,8 @@
 
 All scripts read keys from the environment or a local `.env` (see `.env.example`). They never print keys.
 
+**The voice carries the film: a robotic read ruins good pictures.** Only Azure HD or Gemini voices are allowed. If Azure returns 401/403, check the region first (the key belongs to one region; `AZURE_SPEECH_REGION` must match the resource), then try Gemini. If both fail, **stop and ask the user for a working key**. Never use an OS voice (Windows SAPI, macOS `say`, espeak, Piper…) and never speed a take up to fit; rewrite the script shorter instead.
+
 ## Voice (primary: Azure Speech HD)
 ```bash
 python scripts/tts_azure.py script.txt audio/vo_andrew.mp3 --voice "en-US-Andrew:DragonHDLatestNeural" --temperature 0.8

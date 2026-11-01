@@ -13,6 +13,12 @@ When the user asks for an explainer, promo or product video for a company or web
    - the specs.
 3. Follow the gates G1–G8, including **G2b, a design system for the video** (`design-system.md` + `tokens.css` + a style board PNG for approval). Stop for approval after the script (G3) unless the user said to go straight through.
 
+**Read the HARD STOPS table in SKILL.md before starting.** In short:
+- When a required step fails (a key returns 401, a reference can't be downloaded, the font can't be self-hosted), **stop and ask**. Never substitute an OS voice, a guessed reference, a system font or an `<img>` logo.
+- Build by copying `templates/composition.html` and using its helpers (`cam`, `fly`, `morph`, `focus`, `rise`, `texts`). Never write your own animation engine, WAAPI or CSS animations.
+- `python scripts/lint_composition.py video/index.html` must pass before any render.
+- `python scripts/motion_check.py <render>.mp4` must PASS before delivery (it also enforces 60fps). Show the user a draft contact sheet (G6b) before the final render.
+
 Rules that apply to any agent:
 - **Never write, print or commit an API key.** Keys come only from the environment or a git-ignored `.env`.
 - Keep client material (logos, fonts, photos, renders) out of this repository.

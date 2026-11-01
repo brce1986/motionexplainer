@@ -30,6 +30,7 @@ MotionExplainer is an agent skill for [Claude Code](https://claude.com/claude-co
 | 🧊 **Liquid glass, never a slideshow** | One 3D world with a camera that keeps moving, cards that fly out of buttons and morph into each other, focus blur, and a background that never stops. |
 | 🎙️ **A voice that is checked** | Azure Speech HD neural voices (Gemini TTS as fallback). Every take, and the final mix, is transcribed and compared with the script, so no word gets lost. |
 | 🎵 **Sound locked to the words** | Music and SFX synthesised in code (zero licensing). The brand line lands on a downbeat, and every SFX sits on the word it illustrates. |
+| 🚦 **Hard gates, not good intentions** | `lint_composition.py` blocks any render that skips the motion engine; `motion_check.py` measures the rendered MP4 and fails anything that reads as a slideshow (holds, fades to empty, low motion, < 60fps). When a key, a reference or a font fails, the skill stops and asks instead of shipping a weaker substitute. |
 | 🔍 **A glitch hunt before delivery** | 10 fps contact sheets of the **rendered MP4** around every transition, checked against a list of real-world glitches. |
 | 🧩 **A design system per video** | Brand + references merge into `tokens.css` and a style board you approve before a single scene is built. |
 | 🎞️ **Tuned to your taste** | Send ≥3 reference videos (YouTube is fine). The skill reads their pace, camera and transitions, and borrows from them. |
@@ -102,7 +103,9 @@ On its first reply, the skill **checks your setup** and **tells you exactly what
 ```
  G1 References ──► G2 Brand & story ──► G2b Design system ✋ ──► G3 Script + beat sheet ✋
                                                                         │
- G8 Render 60fps ◄── G7 Glitch hunt ◄── G6 Build ◄── G5 Soundtrack ◄── G4 Voice (2 takes, checked)
+ G7 Glitch hunt ◄── G6b Animatic ✋ ◄── G6 Build (lint) ◄── G5 Soundtrack ◄── G4 Voice (2 takes, checked)
+       │
+       └──► G8 Render 60fps ──► motion_check PASS ──► delivery
 ```
 
 Each gate shows its result before moving on. You can ask for several cuts (e.g. *with phone / no phone / free style*) that share the same script and audio.
@@ -152,7 +155,9 @@ motionexplainer/
 │   ├── extract_brand.py        # same from the shell (Playwright, or an HTTP/CSS fallback)
 │   ├── ref_frames.py           # contact sheets of a reference video
 │   ├── fetch_stock.py          # optional stock photos + credits.json
-│   └── sheets.py               # 10 fps contact sheets for the glitch hunt
+│   ├── sheets.py               # 10 fps contact sheets for the glitch hunt
+│   ├── lint_composition.py     # build gate: GSAP engine, 3D world, camera/flight density, split logo
+│   └── motion_check.py         # slideshow detector on the rendered MP4 (holds, fades to empty, 60fps)
 ├── templates/
 │   ├── composition.html        # base composition with every style helper
 │   ├── design-system.html      # the style board (renders tokens.css)

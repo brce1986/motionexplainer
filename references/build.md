@@ -15,7 +15,7 @@
 
 ## Starting
 1. `npx --yes hyperframes@<version> init video --example blank --resolution landscape --non-interactive` (or `portrait` for 9:16).
-2. Copy `templates/composition.html` to `video/index.html` and set the size, duration and brand tokens.
+2. Copy `templates/composition.html` to `video/index.html` and set the size, duration and brand tokens. **Always start from this copy**: never an empty file, never your own engine (WAAPI, CSS animations, a homemade `animate()`). Replace the demo scenes with yours using the same helpers.
 3. Copy the approved `tokens.css` (G2b) next to `index.html`. Put the client's fonts in `video/assets/fonts`, photos in `video/assets/img`, the mix in `video/assets/audio/mix.mp3`.
 4. **The logo:** `python scripts/logo_split.py client-logo.svg --groups 5,2,2,2 > logo_snippet.html`. Paste the result where the template says `<!--LOGO-->`. Each group gets a class (`lg-a`, `lg-b`…) and the first gradient-filled path gets `id="lg-mark"`. Open the SVG first to decide the groups (words, the mark, ™).
 
@@ -29,17 +29,19 @@
 ## Rendering
 ```bash
 cd video
+python <skill-dir>/scripts/lint_composition.py index.html      # must pass (it fails until the LOGO slot is filled)
 npx --yes hyperframes@<version> check
 npx --yes hyperframes@<version> snapshot --at 3,8,15,...      # read the contact sheet
 npx --yes hyperframes@<version> render -o ../<Client>_explainer.mp4 -f 60 -q delivery
 ```
 - A 55s render at 60fps takes ~5–10 min. Run it in the background.
-- After rendering, run the QA in `qa.md` on the **MP4**.
+- After rendering, run the QA in `qa.md` on the **MP4**, starting with `python <skill-dir>/scripts/motion_check.py ../<Client>_explainer.mp4` (must PASS, 60fps).
+- Render the delivery master only after the G6b animatic passed and (unless the user waived it) was approved.
 
 ## Delivering
 Send the MP4 and a short note:
 - scene by scene, what happens;
-- what was verified and how (frames, transcription);
+- what was verified and how: paste the `lint_composition.py` and `motion_check.py` outputs, the transcription result, the sheets you read;
 - what wasn't (e.g. you can't listen to the audio);
 - open risks (UI designed without real screenshots, font licence).
 

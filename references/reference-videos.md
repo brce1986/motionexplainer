@@ -2,6 +2,8 @@
 
 The user sends **at least 3** references (YouTube links or files). They tune pace, camera energy, transitions and density. They never override the house style's non-negotiables (`style.md`).
 
+**You must see the whole of every reference.** One frame (a thumbnail, the opening shot) tells you the palette, not the pace, camera or transitions, which are what the user is asking you to borrow. If you can't get full contact sheets, stop and ask; never write notes about camera or rhythm you didn't see.
+
 ## Getting frames
 ```bash
 python scripts/ref_frames.py "<youtube-url-or-file>" refs/ref1     # needs yt-dlp + ffmpeg
