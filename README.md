@@ -2,9 +2,10 @@
 
 # 🎬 MotionExplainer
 
-**Give Claude a client's website. Get back a narrated, liquid-glass explainer video built from their own brand.**
+**Give your coding agent a client's website. Get back a narrated, liquid-glass explainer video built from their own brand.**
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-D97757?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.claude.com/en/docs/claude-code/skills)
+[![Codex](https://img.shields.io/badge/OpenAI%20Codex-compatible-412991?style=for-the-badge&logo=openai&logoColor=white)](https://github.com/openai/codex)
 [![HyperFrames](https://img.shields.io/badge/HyperFrames-HTML→MP4-0B1424?style=for-the-badge)](https://github.com/heygen-com/hyperframes)
 [![GSAP](https://img.shields.io/badge/GSAP-3.14-88CE02?style=for-the-badge&logo=greensock&logoColor=white)](https://gsap.com)
 [![Azure Speech](https://img.shields.io/badge/Azure-Speech%20HD-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://learn.microsoft.com/azure/ai-services/speech-service/high-definition-voices)
@@ -20,7 +21,7 @@
 
 ## ✨ What it does
 
-MotionExplainer is a [Claude Code](https://claude.com/claude-code) skill that runs a full motion-design pipeline for you:
+MotionExplainer is an agent skill for [Claude Code](https://claude.com/claude-code) and [OpenAI Codex](https://github.com/openai/codex). It works in any agent that can run shell commands and read files, and runs a full motion-design pipeline for you:
 
 | | |
 |---|---|
@@ -45,18 +46,42 @@ MotionExplainer is a [Claude Code](https://claude.com/claude-code) skill that ru
 
 ## 🚀 Quick start
 
+### 1. Install
+
+<table>
+<tr><th>Claude Code</th><th>OpenAI Codex</th></tr>
+<tr><td>
+
 ```bash
-# 1. install the skill
-git clone https://github.com/brce1986/motionexplainer ~/.claude/skills/motionexplainer
+git clone https://github.com/brce1986/motionexplainer \
+  ~/.claude/skills/motionexplainer
+```
+Claude Code loads skills from `~/.claude/skills/` (personal) or `.claude/skills/` (project).
 
-# 2. check your machine (it prints install commands for anything missing)
-python ~/.claude/skills/motionexplainer/scripts/doctor.py
+</td><td>
 
-# 3. keys go in your environment or a local .env, never in the repo
-cp ~/.claude/skills/motionexplainer/.env.example ./.env   # then fill it in
+```bash
+git clone https://github.com/brce1986/motionexplainer \
+  ~/.codex/skills/motionexplainer
+```
+Codex discovers `SKILL.md` skills in `$CODEX_HOME/skills/` (default `~/.codex/skills/`); restart Codex after cloning. Older versions gate skills behind a flag (`codex --enable skills`). Without skill support, clone into your project and point to the repo's `AGENTS.md`: *"follow motionexplainer/AGENTS.md"*.
+
+</td></tr>
+</table>
+
+### 2. Check the machine
+It prints install commands for anything missing:
+```bash
+python <skill-dir>/scripts/doctor.py
 ```
 
-Then, in Claude Code:
+### 3. Keys
+Keys live in your environment or a local `.env`, never in the repo:
+```bash
+cp <skill-dir>/.env.example ./.env      # then fill it in
+```
+
+### 4. Ask your agent
 
 > *"Make a 60s explainer for https://client.com. References: <yt link 1>, <yt link 2>, <yt link 3>. Logo attached."*
 
@@ -92,12 +117,14 @@ Each gate shows its result before moving on. You can ask for several cuts (e.g. 
 | **Azure Speech** | HD voices + transcription check | Azure portal → *Speech* resource |
 | **Gemini API** | fallback voice | Google AI Studio |
 | yt-dlp *(optional)* | reference video frames | `pip install yt-dlp` |
+| Playwright *(optional)* | brand extraction without a browser tool (Codex) | `pip install playwright && python -m playwright install chromium` |
 
 ## 📁 What's inside
 
 ```
 motionexplainer/
-├── SKILL.md                    # the workflow + the first-reply checklist
+├── SKILL.md                    # the workflow + the first-reply checklist (Claude Code & Codex skill)
+├── AGENTS.md                   # entry point for Codex / AGENTS.md-aware agents
 ├── references/
 │   ├── style.md                # the house style: camera, glass, flights, morphs, brand, lockup
 │   ├── brand-extraction.md     # tokens, fonts, photos, the story
@@ -115,6 +142,7 @@ motionexplainer/
 │   ├── soundtrack.py           # music + SFX + ducking + -14 LUFS, from a cues JSON
 │   ├── logo_split.py           # inline SVG logo, split into animatable groups
 │   ├── extract_brand.js        # run in the client's page → brand tokens JSON
+│   ├── extract_brand.py        # same from the shell (Playwright, or an HTTP/CSS fallback)
 │   ├── ref_frames.py           # contact sheets of a reference video
 │   └── sheets.py               # 10 fps contact sheets for the glitch hunt
 ├── templates/

@@ -1,7 +1,13 @@
 # G2: Extracting the brand and the story
 
 ## From a website
-Open the site in a browser tool, read the full page text, and run `scripts/extract_brand.js` in the page. It returns JSON with:
+Use either way:
+- **With a browser tool** (Claude Code): open the site, read the full page text, and run `scripts/extract_brand.js` in the page.
+- **From the shell** (Codex, or any agent): `python scripts/extract_brand.py <url> brand/`. It writes `brand.json`, `page.txt` and screenshots (`hero.png`, `full.png`).
+  - With Playwright it runs the same JS on the rendered page (`pip install playwright && python -m playwright install chromium`).
+  - Without it, it falls back to parsing the HTML/CSS: approximate, and with no screenshots.
+
+Both return JSON with:
 - the CSS custom properties on `:root`, which often hold the brand tokens and gradients (e.g. `--brand-gradient`);
 - every gradient in use, the background colours, the most-used text colours;
 - the font families, `@font-face` sources (self-hosted woff2 URLs) and Google Fonts links;

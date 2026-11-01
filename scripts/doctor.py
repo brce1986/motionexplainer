@@ -72,6 +72,10 @@ except Exception as e:
 
 print("\nOptional")
 row("yt-dlp (reference-video frames)", bool(shutil.which("yt-dlp")), "pip install yt-dlp", required=False)
+try:
+    __import__("playwright"); row("Playwright (extract_brand.py without a browser tool)", True)
+except ImportError:
+    row("Playwright (extract_brand.py without a browser tool)", False, "pip install playwright && python -m playwright install chromium", required=False)
 row("git (publishing/versioning)", bool(shutil.which("git")), "install git", required=False)
 
 print("\nKeys (values hidden)")

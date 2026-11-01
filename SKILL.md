@@ -12,6 +12,14 @@ You turn a client's website into a finished explainer video:
 
 The style and every rule here come from shipped client work. Read `references/style.md` before building anything.
 
+**Works with Claude Code and with Codex (or any agent that can run shell commands and read files).** Everything runs through the scripts in this folder; nothing depends on one agent's built-in tools.
+- `<skill-dir>` is the folder holding this file (e.g. `~/.claude/skills/motionexplainer` or `~/.codex/skills/motionexplainer`).
+- **Looking at images** (contact sheets, snapshots, reference frames): use your image viewer (Claude: Read on the PNG; Codex: `view_image` / attach the file).
+- **Reading the client's site:**
+  - with a browser tool, open the page and run `scripts/extract_brand.js`;
+  - without one, run `python <skill-dir>/scripts/extract_brand.py <url> brand/`, which uses Playwright when installed and falls back to plain HTTP + CSS parsing.
+- **Long renders:** run them in the background (or with a long timeout) and wait for them to finish.
+
 ## STEP 0: check the machine, then the first reply (mandatory, before any work)
 
 **Before replying**, run the dependency check:
@@ -25,7 +33,7 @@ It checks:
 - numpy + scipy;
 - that HyperFrames (pinned) runs through npx, together with its headless Chromium;
 - network access to the GSAP CDN;
-- optional: yt-dlp and git;
+- optional: yt-dlp, Playwright and git;
 - which keys are set (values hidden).
 
 It prints the install command for this OS for anything missing. Put the result **at the top of your first message**: what is ready, and what to install with the exact commands. Offer to install what can be installed from the shell (pip packages, `npx` caches) once the user agrees. Never install system packages without asking.
@@ -85,4 +93,4 @@ If the user asks for several cuts (e.g. "with phone / without phone / free style
   - FFmpeg/FFprobe on PATH;
   - Python 3.10+ with numpy and scipy (soundtrack);
   - yt-dlp (optional, for reference frames).
-- **Full list** (what `doctor.py` checks): Python 3.10+ (numpy, scipy), FFmpeg/FFprobe (full build), Node.js 20+ / npx, HyperFrames (via npx, with its bundled headless Chromium), GSAP 3.14.2 (CDN, needs network), yt-dlp (optional), git (optional), Azure Speech (TTS + fast transcription REST APIs), Gemini API (TTS fallback). In Claude Code, also a browser tool to read the client's site and run `extract_brand.js`.
+- **Full list** (what `doctor.py` checks): Python 3.10+ (numpy, scipy), FFmpeg/FFprobe (full build), Node.js 20+ / npx, HyperFrames (via npx, with its bundled headless Chromium), GSAP 3.14.2 (CDN, needs network), yt-dlp (optional), Playwright + Chromium (optional, for `extract_brand.py`), git (optional), Azure Speech (TTS + fast transcription REST APIs), Gemini API (TTS fallback).
