@@ -32,6 +32,7 @@ MotionExplainer is an agent skill for [Claude Code](https://claude.com/claude-co
 | 🎵 **Sound locked to the words** | Music and SFX synthesised in code (zero licensing). The brand line lands on a downbeat, and every SFX sits on the word it illustrates. |
 | 🚦 **Hard gates, not good intentions** | `lint_composition.py` blocks any render that skips the motion engine; `motion_check.py` measures the rendered MP4 and fails anything that reads as a slideshow (holds, fades to empty, low motion, < 60fps). When a key, a reference or a font fails, the skill stops and asks instead of shipping a weaker substitute. |
 | 🔍 **A glitch hunt before delivery** | 10 fps contact sheets of the **rendered MP4** around every transition, checked against a list of real-world glitches. |
+| 🎬 **A scene kit, not a blank canvas** | Six scenes taken from shipped films (hook, reveal, ask, compare, detail, lockup). The agent picks them, times them to the voice and fills them with the client's material, so a first cut starts where approved films ended. |
 | 🧩 **A design system per video** | Brand + references merge into `tokens.css` and a style board you approve before a single scene is built. |
 | 🎞️ **Tuned to your taste** | Send ≥3 reference videos (YouTube is fine). The skill reads their pace, camera and transitions, and borrows from them. |
 
@@ -101,7 +102,7 @@ On its first reply, the skill **checks your setup** and **tells you exactly what
 ## 🧭 The pipeline
 
 ```
- G1 References ──► G2 Brand & story ──► G2b Design system ✋ ──► G3 Script + beat sheet ✋
+ G1 References ──► G2 Brand & story ──► G2b Design system ✋ ──► G2c Style frames ✋ ──► G3 Script + beat sheet ✋
                                                                         │
  G7 Glitch hunt ◄── G6b Animatic ✋ ◄── G6 Build (lint) ◄── G5 Soundtrack ◄── G4 Voice (2 takes, checked)
        │
@@ -141,6 +142,7 @@ motionexplainer/
 │   ├── reference-videos.md     # how references are read and what to borrow
 │   ├── script.md               # script + beat sheet rules
 │   ├── audio.md                # voices, checks, breath, soundtrack
+│   ├── scene-kit.md            # the six scenes: what each says, min. length, what to swap
 │   ├── build.md                # project layout, rendering, delivery
 │   └── qa.md                   # the glitch checklist (symptom → cause → fix)
 ├── scripts/
@@ -159,7 +161,8 @@ motionexplainer/
 │   ├── lint_composition.py     # build gate: GSAP engine, 3D world, camera/flight density, split logo
 │   └── motion_check.py         # slideshow detector on the rendered MP4 (holds, fades to empty, 60fps)
 ├── templates/
-│   ├── composition.html        # base composition with every style helper
+│   ├── kit/index.html          # the scene kit: six proven scenes + every helper (start here)
+│   ├── composition.html        # minimal composition with the same helpers
 │   ├── design-system.html      # the style board (renders tokens.css)
 │   ├── tokens.example.css      # design tokens to start from
 │   └── cues.example.json

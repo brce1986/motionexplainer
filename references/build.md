@@ -15,7 +15,7 @@
 
 ## Starting
 1. `npx --yes hyperframes@<version> init video --example blank --resolution landscape --non-interactive` (or `portrait` for 9:16).
-2. Copy `templates/composition.html` to `video/index.html` and set the size, duration and brand tokens. **Always start from this copy**: never an empty file, never your own engine (WAAPI, CSS animations, a homemade `animate()`). Replace the demo scenes with yours using the same helpers.
+2. Copy `templates/kit/index.html` (the scene kit, `references/scene-kit.md`) to `video/index.html`; set the duration, `S` and `WT`. **Always start from this copy**: never an empty file, never your own engine (WAAPI, CSS animations, a homemade `animate()`). `templates/composition.html` is the minimal version of the same engine, for reference.
 3. Copy the approved `tokens.css` (G2b) next to `index.html`. Put the client's fonts in `video/assets/fonts`, photos in `video/assets/img`, the mix in `video/assets/audio/mix.mp3`.
 4. **The logo:** `python scripts/logo_split.py client-logo.svg --groups 5,2,2,2 > logo_snippet.html`. Paste the result where the template says `<!--LOGO-->`. Each group gets a class (`lg-a`, `lg-b`…) and the first gradient-filled path gets `id="lg-mark"`. Open the SVG first to decide the groups (words, the mark, ™).
 

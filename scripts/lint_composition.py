@@ -5,9 +5,11 @@ Fails (exit 1) when the composition:
 - animates with anything else: WAAPI (el.animate), CSS @keyframes/animation, CSS transitions;
 - has no 3D world (#space + #world, preserve-3d) or too few camera moves / flights / morphs for its length;
 - shows the logo as an <img> or a flat block instead of the inline split SVG (.lg parts) animated in parts;
-- has no @font-face (a system-font fallback changes the brand) or no tokens.css;
+- has no @font-face, or aliases a system font with local() (a system font changes the brand), or no tokens.css;
+- still contains [REPLACE] placeholders from the scene kit;
 - uses Math.random or Date.now (renders must be deterministic).
-Writing an engine from scratch is how a film turns into slides: start from templates/composition.html."""
+Writing an engine from scratch is how a film turns into slides: start from templates/kit/index.html.
+Make the film good, not this script quiet: these checks only catch the worst failures, and the user reviews the film."""
 import argparse
 import re
 import sys
@@ -57,12 +59,20 @@ need(lg_parts >= 2, f"the lockup logo is the inline split SVG from logo_split.py
 if logo_img:
     notes.append("WARN an <img> logo is also used: fine inside a UI mockup, never as the lockup")
 need(re.search(r"#lg-mark|\.lg-[a-j]\b|\.lg\b", js_nc) is not None, "the logo parts are animated (#lg-mark / .lg-a ...)")
-need("@font-face" in css, "the brand font is self-hosted (@font-face)")
+faces = re.findall(r"@font-face\s*\{[^}]*\}", css)
+need(bool(faces) and all(re.search(r"url\(", f) for f in faces) and not any("local(" in f for f in faces),
+     "the brand font is self-hosted (@font-face with url(), no local() aliases)")
+body = re.sub(r"<script.*?</script>|<style.*?</style>", "", code, flags=re.S)
+left = len(re.findall(r"\[REPLACE\]", body + js_nc))
+need(left == 0, f"no [REPLACE] placeholders left ({left} found)")
+empty_photos = len(re.findall(r'class="[^"]*\bphoto\b[^"]*"[^>]*>(?!\s*<img)', body))
+if empty_photos:
+    notes.append(f"WARN {empty_photos} .photo slots have no <img>: use the client's photos, not the gradient stand-ins")
 need("tokens.css" in code, "tokens.css is imported")
 
 for line in sorted(notes, key=lambda l: l.startswith("WARN")) + errors:
     print(line)
 print(f"\n{a.html}: {dur:g}s, {len(errors)} problem(s)")
 if errors:
-    print("Rebuild from templates/composition.html and its helpers (cam, fly, morph, focus, rise, texts). See references/build.md.")
+    print("Build from templates/kit/index.html and its helpers (cam, fly, morph, focus, rise, texts). See references/scene-kit.md.")
 sys.exit(1 if errors else 0)

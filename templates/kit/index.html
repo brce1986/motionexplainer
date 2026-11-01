@@ -1,0 +1,404 @@
+<!doctype html>
+<!--
+  MotionExplainer SCENE KIT (HyperFrames + GSAP), 16:9.
+  Six proven scenes taken from shipped films. Copy this file to video/index.html, then:
+    1. pick the scenes your story needs (delete the others' HTML block AND their line in build());
+    2. set each scene's start in S from the VO word timings (timeline time = VO time + vo_offset);
+    3. replace every [REPLACE] (copy, the client's photos, the UI rows) and the LOGO slot (scripts/logo_split.py);
+    4. keep the helpers, the background and the camera calls as they are.
+  A scene can be used more than once (duplicate its HTML with new ids and call its function again).
+  Read references/scene-kit.md for what each scene is for, its minimum length and what to swap.
+-->
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Client explainer</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* [REPLACE] the client's own webfont files (self-hosted). Never alias a system font with local(). */
+      @font-face { font-family: "Brand"; font-weight: 400; font-display: block; src: url("assets/fonts/Brand-Regular.woff2") format("woff2"); }
+      @font-face { font-family: "Brand"; font-weight: 700; font-display: block; src: url("assets/fonts/Brand-Bold.woff2") format("woff2"); }
+      :root {
+        --ink: #020817; --ink2: #0d1220; --ink3: #1b2438;
+        --text: #f4f7f1; --mute: rgba(244, 247, 241, 0.62); --faint: rgba(244, 247, 241, 0.42);
+        --a: #2dc8c4; --b: #fecb53;
+        --beam: linear-gradient(90deg, var(--a) 0%, var(--b) 100%);
+        --line: rgba(255, 255, 255, 0.1);
+        --font-display: "Brand", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--font-display); color: var(--text); background: var(--ink); }
+      .clip { position: absolute; inset: 0; }
+      .abs { position: absolute; left: 0; top: 0; }
+      .g { background: var(--beam); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+      /* ---------- the living background (never edit the structure; tokens set the colours) ---------- */
+      #bg { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 90% at 50% 0%, var(--ink2) 0%, var(--ink) 70%); }
+      #bgPar { position: absolute; left: -240px; top: -200px; width: 2400px; height: 1480px; }
+      .glow { position: absolute; left: 0; top: 0; border-radius: 50%; filter: blur(110px); }
+      #gA { width: 1100px; height: 1100px; background: radial-gradient(circle closest-side, color-mix(in srgb, var(--a) 50%, transparent), transparent 75%); }
+      #gB { width: 1000px; height: 1000px; background: radial-gradient(circle closest-side, color-mix(in srgb, var(--b) 32%, transparent), transparent 75%); }
+      #beamLine { position: absolute; left: 0; top: 0; width: 1600px; height: 2px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--a) 50%, transparent) 28%, color-mix(in srgb, var(--b) 50%, transparent) 72%, transparent); }
+      .bph { position: absolute; left: 0; top: 0; width: 300px; height: 200px; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); }
+
+      /* ---------- camera ---------- */
+      #space { position: absolute; inset: 0; perspective: 2600px; perspective-origin: 960px 640px; }
+      #world { position: absolute; left: 960px; top: 640px; width: 0; height: 0; transform-style: preserve-3d; }
+      .sub { position: absolute; left: 0; top: 0; }
+
+      /* ---------- title band: same place and size in every beat ---------- */
+      #band { position: absolute; left: 0; right: 0; top: 0; height: 230px; }
+      #mask { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; overflow: hidden; }
+      #mask .word { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font-size: 88px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; white-space: nowrap; }
+
+      /* ---------- glass, and the solid variant for light brands (add class "solid" on #root) ---------- */
+      .glass { background: linear-gradient(180deg, color-mix(in srgb, var(--ink3) 66%, transparent) 0%, color-mix(in srgb, var(--ink2) 56%, transparent) 100%);
+        backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.11); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 40px 90px rgba(0, 0, 0, 0.45); }
+      #root.solid .glass { --mute: color-mix(in srgb, var(--card-text, #0c0a08) 62%, transparent); --faint: color-mix(in srgb, var(--card-text, #0c0a08) 48%, transparent);
+        color: var(--card-text, #0c0a08); backdrop-filter: none; -webkit-backdrop-filter: none; border: 1px solid rgba(0, 0, 0, 0.06); box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35); }
+      #root.solid .glass:not(.photo) { background: var(--card, #ffffff); }
+      #root.solid .photo .cap { --mute: rgba(255, 255, 255, 0.82); color: #fff; }   /* captions sit on the photo, not on a card */
+      #root.solid .glass .pill { color: var(--card-text, #0c0a08); background: color-mix(in srgb, var(--a) 55%, transparent); }
+      #root.solid .glass .pill.b { background: color-mix(in srgb, var(--b) 45%, transparent); }
+      .card { border-radius: 26px; }
+      .lbl { font-size: 22px; color: var(--mute); letter-spacing: 0.06em; text-transform: uppercase; }
+      #root.solid .glass .lbl, #root.solid .glass .row { color: color-mix(in srgb, var(--card-text, #0c0a08) 60%, transparent); }
+      .pill { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px; border-radius: 99px; font-size: 22px; font-weight: 700; white-space: nowrap; background: color-mix(in srgb, var(--a) 16%, transparent); color: var(--a); }
+      .pill.b { background: color-mix(in srgb, var(--b) 16%, transparent); color: var(--b); }
+      .row { display: flex; justify-content: space-between; margin-top: 12px; padding: 14px 20px; border-radius: 16px; background: rgba(127, 127, 127, 0.08); font-size: 26px; color: var(--mute); }
+      .row em { font-style: normal; font-weight: 700; color: inherit; filter: brightness(1.6); }
+      #root.solid .row em { filter: none; color: var(--card-text, #0c0a08); }
+      .btn { position: relative; height: 72px; padding: 0 34px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: var(--ink2); background: var(--beam); }
+      .tap { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); border: 1px solid rgba(255, 255, 255, 0.7); opacity: 0; }
+      .stk { display: grid; } .stk > * { grid-area: 1 / 1; }
+
+      /* hidden before their entrance in CSS too, so frame 0 is right even before the timeline's first render */
+      #world > .sub, .hk, #iris, #tag, #cta, #url, #dOk, #mosaic .tile { opacity: 0; }
+      #hk1 { opacity: 1; }
+
+      /* [REPLACE] photo slots: put the client's <img> inside; the gradient is only a stand-in */
+      .photo { position: relative; overflow: hidden; background: radial-gradient(80% 90% at 30% 25%, color-mix(in srgb, var(--a) 55%, var(--ink3)), var(--ink3) 70%); }
+      .photo:nth-child(even) { background: radial-gradient(80% 90% at 70% 30%, color-mix(in srgb, var(--b) 45%, var(--ink3)), var(--ink3) 70%); }
+      .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+      /* ---------- SCENE 1 · HOOK ---------- */
+      .hk { position: absolute; left: 0; right: 0; top: 480px; text-align: center; font-size: 96px; font-weight: 700; letter-spacing: -0.035em; white-space: nowrap; line-height: 1.1; }
+      #iris { position: absolute; left: 960px; top: 640px; width: 170px; height: 170px; margin: -85px 0 0 -85px; border-radius: 50%; background: conic-gradient(from 200deg, var(--a), var(--b), var(--a));
+        -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%); mask: radial-gradient(circle, transparent 58%, #000 60%); }
+
+      /* ---------- SCENE 2 · REVEAL (hero photo -> mosaic) ---------- */
+      #hero { width: 1040px; height: 640px; }
+      #hero .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 100px 36px 30px; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--ink2) 92%, transparent)); display: flex; gap: 12px; flex-wrap: wrap; }
+      #hero .cap b { width: 100%; font-size: 32px; font-weight: 400; color: var(--mute); margin-top: 6px; }
+      #mosaic { width: 1240px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+      .tile { height: 270px; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45); }
+      .tile span { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 24px 20px; font-size: 32px; font-weight: 700; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--ink2) 90%, transparent)); }
+
+      /* ---------- SCENE 3 · ASK (a floating input over the blurred mosaic) ---------- */
+      #ask { width: 980px; padding: 30px 34px 32px; border-radius: 30px; }
+      #ask .field { height: 84px; margin-top: 14px; border-radius: 20px; background: rgba(127, 127, 127, 0.1); border: 2px solid rgba(127, 127, 127, 0.25); display: flex; align-items: center; gap: 8px; padding: 0 22px; font-size: 34px; }
+      #ask .caret { display: inline-block; width: 3px; height: 38px; background: var(--a); }
+      #ask .chips { display: flex; gap: 10px; margin-top: 16px; }
+
+      /* ---------- SCENE 4 · COMPARE (three cards fan out of the input) ---------- */
+      .opt { width: 500px; padding: 30px; }
+      .opt .top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+      .opt .av { width: 78px; height: 78px; border-radius: 50%; flex: none; }
+      .opt .top b { display: block; font-size: 32px; font-weight: 700; }
+      .opt .top span { font-size: 24px; color: var(--mute); }
+
+      /* ---------- SCENE 5 · DETAIL (the chosen card morphs; a checklist fills) ---------- */
+      #detail { width: 700px; padding: 36px; }
+      #detail h3 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0 6px; }
+      .chk { display: flex; align-items: center; gap: 18px; margin-top: 14px; padding: 16px 18px; border-radius: 18px; background: rgba(127, 127, 127, 0.08); }
+      .chk .dot { position: relative; width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(127, 127, 127, 0.35); flex: none; overflow: hidden; }
+      .chk .dot i { position: absolute; inset: 0; background: var(--beam); }
+      .chk b { display: block; font-size: 30px; font-weight: 700; }
+      .chk span { font-size: 24px; color: var(--mute); }
+      #detail .btn { margin-top: 24px; }
+
+      /* ---------- SCENE 6 · LOCKUP ---------- */
+      #lockup { width: 1300px; display: flex; flex-direction: column; align-items: center; }
+      #lgTop { display: flex; flex-direction: column; align-items: center; }
+      #logoSvg { width: 900px; height: auto; overflow: visible; }
+      #logoText { font-size: 150px; font-weight: 700; letter-spacing: -0.04em; }
+      #tag { margin-top: 46px; font-size: 60px; font-weight: 700; letter-spacing: -0.03em; white-space: nowrap; }
+      #cta { display: flex; gap: 18px; margin-top: 40px; }
+      #url { font-size: 30px; color: var(--mute); margin-top: 26px; letter-spacing: 0.04em; }
+    </style>
+    <link rel="stylesheet" href="tokens.css" />
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="26" data-width="1920" data-height="1080">
+      <audio id="mix" src="assets/audio/mix.mp3" data-start="0" data-duration="26" data-track-index="9" data-volume="1"></audio>
+
+      <section id="scene" class="clip" data-start="0" data-duration="26" data-track-index="0">
+        <div id="bg">
+          <div id="bgPar">
+            <div id="gAw" class="abs"><div id="gA" class="glow"></div></div>
+            <div id="gBw" class="abs"><div id="gB" class="glow"></div></div>
+            <div id="beamLine"></div>
+            <!-- [REPLACE] up to 8 of the client's photos, blurred at the edges -->
+            <div id="bphs" class="abs" data-layout-ignore>
+              <div class="bph photo" id="bp0"></div><div class="bph photo" id="bp1"></div><div class="bph photo" id="bp2"></div><div class="bph photo" id="bp3"></div>
+              <div class="bph photo" id="bp4"></div><div class="bph photo" id="bp5"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="space">
+          <div id="world">
+            <!-- SCENE 2 · REVEAL -->
+            <div id="hero" class="sub card glass photo"><!-- [REPLACE] <img src="assets/img/hero.jpg" alt="" /> -->
+              <div class="cap"><span class="pill">[REPLACE] Category A</span><span class="pill b">Category B</span><b>[REPLACE] Where or who it is for</b></div></div>
+            <div id="mosaic" class="sub" data-layout-ignore>
+              <div class="tile photo"><span>[REPLACE] Service 1</span></div><div class="tile photo"><span>Service 2</span></div><div class="tile photo"><span>Service 3</span></div>
+              <div class="tile photo"><span>Service 4</span></div><div class="tile photo"><span>Service 5</span></div><div class="tile photo"><span>Service 6</span></div>
+            </div>
+
+            <!-- SCENE 3 · ASK -->
+            <div id="ask" class="sub glass"><span class="lbl">[REPLACE] What do you need?</span>
+              <div class="field" id="field"><span id="typed"></span><i class="caret" id="caret"></i></div>
+              <div class="chips"><span class="pill">[REPLACE] Filter one</span><span class="pill b">Filter two</span></div></div>
+
+            <!-- SCENE 4 · COMPARE: three options, the middle one is chosen -->
+            <div id="o0" class="sub opt card glass"><div class="top"><span class="av photo"></span><div><b>[REPLACE] Option one</b><span>Detail · place</span></div></div>
+              <span class="pill">Badge</span><div class="row r1"><span>Price</span><em>$32</em></div><div class="row r2"><span>Rating</span><em>4.8</em></div><div class="row r3"><span>When</span><em>Today</em></div></div>
+            <div id="o1" class="sub opt card glass"><div class="top"><span class="av photo"></span><div><b>[REPLACE] Option two</b><span>Detail · place</span></div></div>
+              <span class="pill">Badge</span><div class="row r1"><span>Price</span><em>$28</em></div><div class="row r2"><span>Rating</span><em>4.9</em></div><div class="row r3"><span>When</span><em>Today</em></div><i class="tap" id="tapO"></i></div>
+            <div id="o2" class="sub opt card glass"><div class="top"><span class="av photo"></span><div><b>[REPLACE] Option three</b><span>Detail · place</span></div></div>
+              <span class="pill">Badge</span><div class="row r1"><span>Price</span><em>$30</em></div><div class="row r2"><span>Rating</span><em>5.0</em></div><div class="row r3"><span>When</span><em>Tomorrow</em></div></div>
+
+            <!-- SCENE 5 · DETAIL: o1 morphs into this card -->
+            <div id="detail" class="sub card glass"><div class="lbl">[REPLACE] Context line</div><h3>[REPLACE] The chosen thing</h3>
+              <div class="chk" id="k0"><span class="dot"><i></i></span><div><b>[REPLACE] Check one</b><span>What it proves</span></div></div>
+              <div class="chk" id="k1"><span class="dot"><i></i></span><div><b>Check two</b><span>What it proves</span></div></div>
+              <div class="chk" id="k2"><span class="dot"><i></i></span><div><b>Check three</b><span>What it proves</span></div></div>
+              <div class="btn" id="dBtn"><div class="stk"><span id="dTxt">[REPLACE] Primary action</span><span id="dOk">Done ✓</span></div><i class="tap" id="tapD"></i></div></div>
+
+            <!-- SCENE 6 · LOCKUP -->
+            <div id="lockup" class="sub">
+              <div id="lgTop">
+                <!--LOGO: paste the output of scripts/logo_split.py here and delete #logoText -->
+                <div id="logoText" class="lg lg-a">Client<span class="g">Logo</span></div>
+                <div id="tag">[REPLACE] The tagline, with <span class="g">the highlight.</span></div>
+              </div>
+              <div id="cta"><span class="btn">[REPLACE] Call to action</span></div>
+              <div id="url">www.client.com</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCENE 1 · HOOK: flat on the screen, in front of the world -->
+        <div id="hook" class="clip">
+          <div class="hk" id="hk1">[REPLACE] The everyday problem,</div>
+          <div class="hk" id="hk2">said in three short lines,</div>
+          <div class="hk" id="hk3">ending on the <span class="g">sting.</span></div>
+        </div>
+        <div id="iris"></div>
+
+        <div id="band">
+          <div id="mask">
+            <div class="word" id="t0">[REPLACE] One <span class="g">place.</span></div>
+            <div class="word" id="t1">Just <span class="g">ask.</span></div>
+            <div class="word" id="t2"><span class="g">Compare.</span></div>
+            <div class="word" id="t3"><span class="g">Checked.</span> Every time.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const $ = (s) => document.querySelector(s);
+      const T = 26;   // film length = data-duration
+
+      // [REPLACE] scene starts, from the VO word timings (timeline time = VO time + vo_offset). Delete the scenes you don't use.
+      const S = { hook: 0, reveal: 5.3, ask: 10.0, compare: 12.6, detail: 15.8, lockup: 20.2 };
+      // [REPLACE] title band: each word's start; the last entry is when the band clears (before the lockup)
+      const W = ["#t0", "#t1", "#t2", "#t3"];
+      const WT = [S.reveal + 0.3, S.ask + 0.1, S.compare + 0.1, S.detail + 0.6, S.lockup - 0.2];
+
+      // ---- text driven by time (typing, counters): any seek lands right ----
+      const QUERY = "[REPLACE] what the user types";
+      function texts(t) {
+        const n = Math.floor(Math.min(1, Math.max(0, (t - S.ask - 0.5) / 1.3)) * QUERY.length);
+        $("#typed").textContent = QUERY.slice(0, n);
+      }
+
+      // ---- the house helpers: never replace them with your own engine ----
+      function rel(el, sub) {
+        const a = el.getBoundingClientRect(), b = sub.getBoundingClientRect();
+        return { x: a.left + a.width / 2 - (b.left + b.width / 2), y: a.top + a.height / 2 - (b.top + b.height / 2) };
+      }
+      const P = (x, y, z = 0, ry = 0, s = 1, rx = 0) => ({ xPercent: -50, yPercent: -50, x, y, z, rotationY: ry, rotationX: rx, scale: s });
+      const PS = (x, y, z, sx, sy) => ({ xPercent: -50, yPercent: -50, x, y, z, rotationY: 0, rotationX: 0, scaleX: sx, scaleY: sy });
+      function fly(tl, sel, from, to, t, dur, ease = "power3.inOut", mb = 4) {
+        tl.fromTo(sel, from, { ...to, duration: dur, ease, immediateRender: false }, t);
+        if (!mb) return;
+        tl.to(sel, { filter: `blur(${mb}px) brightness(1)`, duration: dur * 0.4, ease: "sine.in" }, t + dur * 0.05);
+        tl.to(sel, { filter: "blur(0px) brightness(1)", duration: dur * 0.45, ease: "sine.out" }, t + dur * 0.5);
+      }
+      const focus = (tl, sel, blur, bright, t, d = 0.45) => tl.to(sel, { filter: `blur(${blur}px) brightness(${bright})`, duration: d, ease: "power2.inOut" }, t);
+      const show = (tl, sel, t, y = 24, d = 0.5) => tl.fromTo(sel, { opacity: 0, y }, { opacity: 1, y: 0, duration: d, ease: "expo.out", immediateRender: false }, t);
+      function rise(tl, sel, t, y = 50, d = 0.6) {
+        tl.fromTo(sel, { opacity: 0, y, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: d, ease: "expo.out", immediateRender: false }, t);
+      }
+      function tap(tl, sel, t) {
+        tl.fromTo(sel, { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.08, ease: "power2.out", immediateRender: false }, t);
+        tl.to(sel, { opacity: 0, scale: 1.25, duration: 0.3, ease: "power2.out" }, t + 0.16);
+      }
+      function cam(tl, t, d, ry, rx, z, y = 0, ease = "sine.inOut") {
+        tl.to("#world", { rotationY: ry, rotationX: rx, z, y, duration: d, ease }, t);
+        tl.to("#bgPar", { x: -ry * 10, y: rx * 8 - y * 0.15, duration: d, ease }, t);
+      }
+      function morph(tl, A, B, at, to, t, dur = 0.6) {
+        const a = $(A), b = $(B), box = PS(at.x, at.y, at.z, a.offsetWidth / b.offsetWidth, a.offsetHeight / b.offsetHeight);
+        tl.to(`${A} > *:not(.tap)`, { opacity: 0, duration: 0.2 }, t - 0.2);
+        tl.set(`${B} > *`, { opacity: 0 }, t - 0.05);
+        tl.set(B, { ...box, opacity: 1 }, t);
+        tl.set(A, { opacity: 0 }, t);
+        fly(tl, B, box, PS(to.x, to.y, to.z, 1, 1), t, dur, "power3.inOut", 0);
+        tl.to(`${B} > *`, { opacity: 1, duration: 0.35, stagger: 0.03 }, t + dur * 0.4);
+      }
+
+      // ================= SCENE 1 · HOOK (min 4.5s): the problem, one line at a time; the iris opens the film =================
+      function sceneHook(tl, t0, lines = [["#hk1", 0.0], ["#hk2", 1.6], ["#hk3", 3.2]], out = 4.7) {
+        cam(tl, t0, out + 0.5, 5, 3, 0);
+        lines.forEach(([q, dt], i) => {
+          if (i === 0 && t0 === 0) tl.fromTo(q, { opacity: 1, y: 20, filter: "blur(6px)" }, { y: 0, filter: "blur(0px)", duration: 0.8, ease: "expo.out" }, 0);   // on screen at 0s: the thumbnail
+          else rise(tl, q, t0 + dt);
+          lines.slice(0, i).forEach(([p], j) => tl.to(p, { y: -(i - j) * 130, opacity: 0.22, duration: 0.5, ease: "power3.out" }, t0 + dt));
+        });
+        tl.to(".hk", { opacity: 0, filter: "blur(14px)", duration: 0.4, ease: "power2.in" }, t0 + out);
+        // the iris (or the logo's mark) spins in and passes the lens: the next scene comes through it
+        tl.fromTo("#iris", { opacity: 0, scale: 0, rotation: -160 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.4, ease: "back.out(1.8)", immediateRender: false }, t0 + out - 0.05);
+        tl.to("#iris", { scale: 14, opacity: 0, duration: 0.55, ease: "power3.in" }, t0 + out + 0.3);
+      }
+
+      // ================= SCENE 2 · REVEAL (min 4s): a big photo from depth, then it opens into a mosaic =================
+      function sceneReveal(tl, t0, toMosaic = 2.2) {
+        const tiles = [...document.querySelectorAll("#mosaic .tile")].map((e) => rel(e, $("#mosaic")));
+        cam(tl, t0 - 0.2, 0.9, -8, 4, 40, 0, "power3.inOut");
+        fly(tl, "#hero", { ...P(140, 220, -900, -10, 1), opacity: 0 }, { ...P(0, 0, 0, 0, 1), opacity: 1 }, t0, 0.95, "expo.out", 0);
+        if ($("#hero img")) tl.fromTo("#hero img", { scale: 1.12 }, { scale: 1, duration: 3.2, ease: "sine.out", immediateRender: false }, t0);
+        cam(tl, t0 + 0.5, toMosaic + 2, -4, 3, 90);
+        tl.to("#hero", { z: -200, scale: 1.04, opacity: 0, filter: "blur(18px) brightness(0.85)", duration: 1.1, ease: "power2.inOut" }, t0 + toMosaic - 0.1);
+        tl.set("#mosaic", { ...P(0, 10, 60), opacity: 1 }, t0 + toMosaic);
+        tl.fromTo("#mosaic .tile", { opacity: 0, x: (i) => -tiles[i].x, y: (i) => -tiles[i].y, scale: 0.35, filter: "blur(14px)" },
+          { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)", duration: 1.0, stagger: 0.06, ease: "power3.out", immediateRender: false }, t0 + toMosaic + 0.05);
+      }
+
+      // ================= SCENE 3 · ASK (min 2.4s): the mosaic steps back out of focus; an input floats in front =================
+      function sceneAsk(tl, t0) {
+        cam(tl, t0 - 0.2, 1.0, 0, 2, 260, 0, "power3.inOut");
+        focus(tl, "#mosaic", 8, 0.7, t0 - 0.1, 0.6);
+        tl.to("#mosaic", { z: -300, duration: 0.8, ease: "power3.inOut" }, t0 - 0.1);
+        fly(tl, "#ask", { ...P(0, 160, -300, 0, 0.9), opacity: 0 }, { ...P(0, 0, 220, 0, 1), opacity: 1 }, t0 - 0.15, 0.6, "expo.out", 0);
+        tl.to("#field", { borderColor: "var(--a)", boxShadow: "0 0 0 5px color-mix(in srgb, var(--a) 22%, transparent)", duration: 0.3 }, t0 + 0.1);
+        tl.to("#caret", { opacity: 0, duration: 0.01, yoyo: true, repeat: 5, repeatDelay: 0.22 }, t0 + 1.6);
+        cam(tl, t0 + 0.8, 1.8, 2, 2, 300);
+      }
+
+      // ================= SCENE 4 · COMPARE (min 3s): three options jump out of the input; attributes light up in turn =================
+      function sceneCompare(tl, t0, hl = [1.0, 1.7, 2.4]) {
+        cam(tl, t0 - 0.4, 0.9, 6, 2, 60, 0, "power3.inOut");
+        const POS = [P(-560, 20, -40, 12, 1), P(0, 0, 80, 0, 1), P(560, 20, -40, -12, 1)];
+        ["#o0", "#o1", "#o2"].forEach((s, i) => fly(tl, s, { ...P(0, 0, 220, 0, 0.3), opacity: 0 }, { ...POS[i], opacity: 1 }, t0 - 0.15 + i * 0.09, 0.85, "expo.out", 3));
+        tl.to("#ask", { y: -260, z: -400, opacity: 0, filter: "blur(10px) brightness(1)", duration: 0.6, ease: "power2.in" }, t0 - 0.1);
+        tl.to("#mosaic", { z: -900, opacity: 0, duration: 1.0, ease: "power2.in" }, t0);
+        cam(tl, t0 + 0.5, 2.8, -4, 2, 160);
+        [".r1", ".r2", ".r3"].forEach((s, i) => {
+          tl.to(s, { backgroundColor: "color-mix(in srgb, var(--a) 18%, transparent)", duration: 0.25, stagger: 0.05 }, t0 + hl[i]);
+          tl.to(s, { backgroundColor: "rgba(127, 127, 127, 0.08)", duration: 0.4 }, t0 + hl[i] + 0.8);
+        });
+      }
+
+      // ================= SCENE 5 · DETAIL (min 4s): tap the chosen one, the others leave, it morphs into the detail; checks fill; the action confirms =================
+      function sceneDetail(tl, t0, checks = [1.2, 1.9, 2.6], act = 3.4) {
+        tap(tl, "#tapO", t0 - 0.1);
+        tl.to("#o0", { x: -700, z: -800, opacity: 0, filter: "blur(10px) brightness(1)", duration: 0.55, ease: "power3.in" }, t0);
+        tl.to("#o2", { x: 700, z: -800, opacity: 0, filter: "blur(10px) brightness(1)", duration: 0.55, ease: "power3.in" }, t0);
+        cam(tl, t0 - 0.1, 0.9, -2, 2, 260, 0, "power3.inOut");
+        morph(tl, "#o1", "#detail", { x: 0, y: 0, z: 80 }, { x: 0, y: 0, z: 80 }, t0 + 0.25, 0.6);
+        cam(tl, t0 + 0.8, act + 0.6, 5, 3, 320);
+        tl.fromTo(".chk", { opacity: 0.5 }, { opacity: 0.5, duration: 0.01, immediateRender: false }, t0 + 0.6);
+        ["#k0", "#k1", "#k2"].forEach((k, i) => {
+          tl.to(k, { opacity: 1, backgroundColor: "color-mix(in srgb, var(--a) 12%, transparent)", duration: 0.3 }, t0 + checks[i] - 0.1);
+          tl.to(`${k} .dot i`, { scaleX: 1, duration: 0.4, ease: "expo.out" }, t0 + checks[i]);
+          tl.fromTo(`${k} .dot`, { scale: 1 }, { scale: 1.18, duration: 0.15, yoyo: true, repeat: 1, immediateRender: false }, t0 + checks[i]);
+        });
+        tap(tl, "#tapD", t0 + act);
+        tl.to("#dBtn", { scale: 0.97, duration: 0.07, yoyo: true, repeat: 1 }, t0 + act);
+        tl.to("#dTxt", { opacity: 0, duration: 0.12 }, t0 + act + 0.05);
+        tl.to("#dOk", { opacity: 1, duration: 0.15 }, t0 + act + 0.12);
+      }
+
+      // ================= SCENE 6 · LOCKUP (min 5s): glows converge, the logo builds part by part, then lifts for the CTA =================
+      function sceneLockup(tl, t0, cta = 2.6) {
+        tl.to("#detail", { z: -900, opacity: 0, filter: "blur(10px) brightness(1)", duration: 0.5, ease: "power2.in" }, t0 - 0.4);
+        tl.to("#gAw", { x: 360, y: 120, duration: 1.4, ease: "power3.inOut" }, t0 - 0.6);
+        tl.to("#gBw", { x: -360, y: 120, duration: 1.4, ease: "power3.inOut" }, t0 - 0.6);
+        const lgShift = ($("#lockup").offsetHeight - $("#lgTop").offsetHeight) / 2;
+        tl.set("#lockup", { ...P(0, -90, 0), opacity: 1 }, t0);
+        tl.set("#lgTop", { y: lgShift, scale: 1 }, t0);
+        const mark = $("#lg-mark");
+        if (mark) {   // the logo's mark spins in around its own centre, then keeps turning slowly
+          const b = mark.getBBox(), o = `${b.x + b.width / 2} ${b.y + b.height / 2}`;
+          tl.fromTo(mark, { opacity: 0, scale: 0, rotation: -200, svgOrigin: o }, { opacity: 1, scale: 1, rotation: 0, svgOrigin: o, duration: 1.0, ease: "expo.out", immediateRender: false }, t0 + 0.05);
+          tl.fromTo(mark, { rotation: 0, svgOrigin: o }, { rotation: 360, svgOrigin: o, duration: T - t0 - 1.05, ease: "none", immediateRender: false }, t0 + 1.05);
+        }
+        ["a", "b", "c", "d", "e"].filter((g) => document.querySelector(".lg-" + g)).forEach((g, i) => tl.fromTo(`.lg-${g}`, { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", stagger: 0.05, immediateRender: false }, t0 + 0.2 + i * 0.13));
+        if (document.querySelector(".lg:not([class*='lg-']):not(#lg-mark)")) tl.fromTo(".lg:not([class*='lg-']):not(#lg-mark)", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", stagger: 0.04, immediateRender: false }, t0 + 0.2);
+        show(tl, "#tag", t0 + 1.2, 30, 0.7);
+        tl.to("#lgTop", { y: 0, scale: 0.9, transformOrigin: "50% 100%", duration: 0.8, ease: "power3.inOut" }, t0 + cta - 0.45);
+        show(tl, "#cta", t0 + cta, 24, 0.6);
+        show(tl, "#url", t0 + cta + 0.4, 16, 0.6);
+        cam(tl, t0 - 0.2, T - t0 + 0.2, 0, 0, 120, 0, "sine.out");
+      }
+
+      function build() {
+        const tl = gsap.timeline({ paused: true });
+        // everything in the world is hidden at t=0 (otherwise it flashes for a frame before its entrance)
+        tl.set("#world > .sub", { xPercent: -50, yPercent: -50, opacity: 0, filter: "blur(0px) brightness(1)" }, 0);
+        tl.set("#world", { rotationY: 10, rotationX: 4, z: -200, y: 0 }, 0);
+        tl.set(W, { yPercent: 110, opacity: 0 }, 0);
+        tl.set([".hk:not(#hk1)", "#iris", "#tag", "#cta", "#url", ".lg", "#dOk"], { opacity: 0 }, 0);
+        tl.set("#mosaic .tile", { opacity: 0 }, 0);
+        tl.set(".chk .dot i", { scaleX: 0, transformOrigin: "0% 50%" }, 0);
+
+        // ---- background: loops cover the whole film; the beam restarts off-frame ----
+        tl.fromTo("#gA", { x: 100, y: 500 }, { x: 700, y: 120, duration: 10, ease: "sine.inOut", repeat: Math.ceil(T / 10), yoyo: true }, 0);
+        tl.fromTo("#gB", { x: 1500, y: 0 }, { x: 1000, y: 500, duration: 8, ease: "sine.inOut", repeat: Math.ceil(T / 8), yoyo: true }, 0);
+        tl.fromTo("#beamLine", { x: -1900, y: 1040, opacity: 0.6 }, { x: 2600, y: 1040, duration: 14, ease: "none", repeat: Math.ceil(T / 14) }, 0);
+        [[60, 230, -7], [2020, 300, 6], [120, 1120, 5], [1960, 1180, -6], [700, 60, -3], [1500, 1300, 4]].forEach(([x, y, r], i) =>
+          tl.fromTo("#bp" + i, { x, y, rotation: r, scale: 0.9, filter: "blur(9px)", opacity: 0.3 }, { x: x + (i % 2 ? -220 : 220), y: y - 180, rotation: -r, duration: T, ease: "none" }, 0));
+
+        // ---- title band ----
+        W.forEach((w, i) => {
+          tl.fromTo(w, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: "expo.out", immediateRender: false }, WT[i]);
+          tl.to(w, { yPercent: -110, opacity: 0, duration: 0.35, ease: "power3.in" }, WT[i + 1] - 0.3);
+        });
+
+        // ---- the story: one line per scene you keep ----
+        sceneHook(tl, S.hook);
+        sceneReveal(tl, S.reveal);
+        sceneAsk(tl, S.ask);
+        sceneCompare(tl, S.compare);
+        sceneDetail(tl, S.detail);
+        sceneLockup(tl, S.lockup);
+
+        tl.eventCallback("onUpdate", () => texts(tl.time()));
+        return tl;
+      }
+      window.addEventListener("hf-seek", (e) => texts(e.detail.time));
+      const imgs = Array.from(document.images).map((i) => (i.complete ? Promise.resolve() : new Promise((r) => { i.onload = r; i.onerror = r; })));
+      Promise.all([document.fonts.load("700 88px Brand"), document.fonts.load("400 20px Brand"), ...imgs]).then(() => {
+        texts(0);
+        window.__timelines["main"] = build();
+      });
+    </script>
+  </body>
+</html>
