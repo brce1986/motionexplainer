@@ -1,0 +1,65 @@
+/* The video's design system (G2b). Every value has a source: see design-system.md.
+   The composition and the style board both import this file; scenes never hard-code colours or sizes. */
+:root {
+  /* colour: backgrounds */
+  --ink: #020817;             /* deepest background (site body) */
+  --ink2: #0d1220;            /* panels */
+  --ink3: #1b2438;            /* raised cards */
+  /* colour: text */
+  --text: #f4f7f1;
+  --mute: rgba(244, 247, 241, 0.62);
+  --faint: rgba(244, 247, 241, 0.42);
+  /* colour: brand, one meaning each */
+  --a: #2dc8c4;               /* brand A: e.g. the customer side */
+  --a2: #a1f0bd;
+  --b: #fecb53;               /* brand B: e.g. the provider side */
+  --b2: #eefba7;
+  --ok: #2fbf71;
+  --beam: linear-gradient(90deg, var(--a) 0%, var(--b) 100%);   /* signature gradient: highlights */
+  --btn-a: linear-gradient(95deg, #2dc8c4 0%, #54e0c1 55%, #a1f0bd 100%);
+  --btn-b: linear-gradient(95deg, #fecb53 0%, #ffd97a 55%, #eefba7 100%);
+  --line: rgba(255, 255, 255, 0.1);
+
+  /* type */
+  --font-display: "Brand", sans-serif;
+  --font-ui: "Brand", sans-serif;
+  --font-num: "Brand", sans-serif;
+  --fs-band: 88px;            /* the title band (112px in 9:16) */
+  --fs-h1: 72px;
+  --fs-h2: 40px;
+  --fs-card: 26px;
+  --fs-body: 20px;
+  --fs-label: 15px;
+  --fw-bold: 700;
+  --fw-regular: 400;
+  --track-display: -0.035em;
+
+  /* shape */
+  --r-card: 26px;
+  --r-pill: 99px;
+  --r-btn: 16px;
+  --gap: 18px;
+
+  /* glass */
+  --glass-fill: linear-gradient(180deg, rgba(27, 36, 56, 0.66) 0%, rgba(13, 18, 32, 0.56) 100%);
+  --glass-blur: blur(26px) saturate(160%);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.11);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 40px 90px rgba(0, 0, 0, 0.45);
+
+  /* background */
+  --bg-base: radial-gradient(120% 90% at 50% 0%, #0d1220 0%, #020817 70%);
+  --glow-a: rgba(45, 200, 196, 0.5);
+  --glow-b: rgba(254, 203, 83, 0.32);
+  --glow-blur: 110px;
+  --photo-blur: 9px;
+  --photo-opacity: 0.3;
+
+  /* motion (read in JS with getComputedStyle when useful) */
+  --ease-arrive: expo.out;
+  --ease-leave: power3.in;
+  --ease-camera: power3.inOut;
+  --ease-drift: sine.inOut;
+  --dur-flight: 0.85;
+  --dur-morph: 0.6;
+  --blur-peak: 4;
+}

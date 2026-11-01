@@ -47,7 +47,8 @@ Then your **first message** lists what you need. Do not research, write or rende
    - `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION`: the primary voice (HD neural voices) and the transcription check;
    - `GEMINI_API_KEY`: the fallback voice.
    Explain how to set them: copy `.env.example` to `.env` in the working folder, or `export`/`setx` them. At least one TTS key is required. Without Azure, the transcription check is skipped and you must say so.
-5. **Specs:**
+5. **Optional, stock imagery:** a free `PEXELS_API_KEY` and/or `PIXABAY_API_KEY` if they want extra photos beyond the client's own. Offer it, don't require it.
+6. **Specs:**
    - format: 16:9 / 9:16 / 1:1;
    - duration: default 60s;
    - VO language and gender/tone;
@@ -66,14 +67,15 @@ Never print, log, commit or write a key into a project file. Scripts read keys f
 |---|---|---|
 | G1 | **Read the references.** Pull frames from each video and write what to borrow: pace, transitions, camera, type, density. | `references/reference-videos.md` |
 | G2 | **Extract the brand** from the site: colours, gradients, fonts (self-hosted webfonts), photos, logo. Understand the business: problem, audience, sides, proof points. | `references/brand-extraction.md` |
+| G2b | **Design system for this video:** merge the client's brand (G2) with the references' treatment (G1) into `design-system.md` + `tokens.css`. Render the style board (`templates/design-system.html`) to a PNG: palette, gradient, type scale, glass, buttons, background, logo. **Show it for approval.** Fill photo gaps with stock only if keys were given. | `references/design-system.md`, `references/stock-images.md` |
 | G3 | **Script + beat sheet** in `TREATMENT.md`. ~2.2 words/s for the VO; every claim from the client's own material, nothing invented. One verb or short title per beat. **Stop here for approval** unless the user said to go straight through. | `references/script.md` |
 | G4 | **Voice:** 2 takes (2 voices) with `scripts/tts_azure.py` (fallback `scripts/tts_gemini.py`). Verify each with `scripts/stt_check.py`: every sentence present, the brand pronounced right. Pick one take and export word timings. | `references/audio.md` |
 | G5 | **Soundtrack:** `scripts/soundtrack.py` with a cues JSON. BPM fitted so the brand line lands on a downbeat; SFX on the word timings; music ducked under the VO; -14 LUFS. Re-run `stt_check.py` on the **mix** (SFX can mask words). | `references/audio.md` |
-| G6 | **Build** the composition from `templates/composition.html`: one 3D world, moving camera, glass, flights and morphs, the logo split with `scripts/logo_split.py`. | `references/style.md`, `references/build.md` |
+| G6 | **Build** the composition from `templates/composition.html`, importing `tokens.css` (no hard-coded colours or sizes): one 3D world, moving camera, glass, flights and morphs, the logo split with `scripts/logo_split.py`. | `references/style.md`, `references/build.md` |
 | G7 | **QA:** `npx hyperframes check`, snapshots, then `scripts/sheets.py` on the rendered MP4 around **every** transition. Fix every glitch before delivering. | `references/qa.md` |
 | G8 | **Render** at 60fps, delivery quality. Deliver the MP4 with a short note: what each scene does, what was not verified (e.g. you can't listen to audio), open risks. | `references/build.md` |
 
-If the user asks for several cuts (e.g. "with phone / without phone / free style"), they share G3–G5. Build each cut as its own folder with its own sources.
+If the user asks for several cuts (e.g. "with phone / without phone / free style"), they share G2b–G5. Build each cut as its own folder with its own sources.
 
 ## Non-negotiables (learned the hard way)
 
@@ -93,4 +95,4 @@ If the user asks for several cuts (e.g. "with phone / without phone / free style
   - FFmpeg/FFprobe on PATH;
   - Python 3.10+ with numpy and scipy (soundtrack);
   - yt-dlp (optional, for reference frames).
-- **Full list** (what `doctor.py` checks): Python 3.10+ (numpy, scipy), FFmpeg/FFprobe (full build), Node.js 20+ / npx, HyperFrames (via npx, with its bundled headless Chromium), GSAP 3.14.2 (CDN, needs network), yt-dlp (optional), Playwright + Chromium (optional, for `extract_brand.py`), git (optional), Azure Speech (TTS + fast transcription REST APIs), Gemini API (TTS fallback).
+- **Full list** (what `doctor.py` checks): Python 3.10+ (numpy, scipy), FFmpeg/FFprobe (full build), Node.js 20+ / npx, HyperFrames (via npx, with its bundled headless Chromium), GSAP 3.14.2 (CDN, needs network), yt-dlp (optional), Playwright + Chromium (optional, for `extract_brand.py`), git (optional), Azure Speech (TTS + fast transcription REST APIs), Gemini API (TTS fallback), Pexels / Pixabay APIs (optional stock photos).

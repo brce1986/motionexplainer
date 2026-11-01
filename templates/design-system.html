@@ -1,0 +1,100 @@
+<!doctype html>
+<!--
+  The style board (G2b). Reads tokens.css; shows the palette, gradient, type scale, glass, buttons, background and logo.
+  Copy next to tokens.css + assets/, replace LOGO and the sample photos, then: npx hyperframes snapshot --at 0.5
+-->
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Design system</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="tokens.css" />
+    <style>
+      @font-face { font-family: "Brand"; font-weight: 400; font-display: block; src: url("assets/fonts/Brand-Regular.woff2") format("woff2"); }
+      @font-face { font-family: "Brand"; font-weight: 700; font-display: block; src: url("assets/fonts/Brand-Bold.woff2") format("woff2"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg-base); color: var(--text); font-family: var(--font-ui); }
+      .clip { position: absolute; inset: 0; }
+      .glow { position: absolute; border-radius: 50%; filter: blur(var(--glow-blur)); }
+      #gA { left: -100px; top: 420px; width: 1000px; height: 1000px; background: radial-gradient(circle closest-side, var(--glow-a), transparent 75%); }
+      #gB { left: 1100px; top: -200px; width: 900px; height: 900px; background: radial-gradient(circle closest-side, var(--glow-b), transparent 75%); }
+      .g { background: var(--beam); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .glass { background: var(--glass-fill); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: var(--glass-border); box-shadow: var(--glass-shadow); border-radius: var(--r-card); }
+      .lbl { font-size: var(--fs-label); color: var(--mute); letter-spacing: 0.08em; text-transform: uppercase; }
+      #board { position: absolute; inset: 60px 80px; display: grid; align-items: start; align-content: center; grid-template-columns: 1.05fr 1fr 0.95fr; grid-template-rows: auto 1fr; gap: 28px; }
+      #head { grid-column: 1 / -1; display: flex; align-items: flex-end; justify-content: space-between; }
+      #head h1 { font-family: var(--font-display); font-size: var(--fs-band); font-weight: var(--fw-bold); letter-spacing: var(--track-display); line-height: 1; }
+      #logo { height: 56px; display: flex; align-items: center; font-size: 44px; font-weight: 700; }
+      #logo img { height: 56px; width: auto; }
+      .panel { padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+      .sw { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      .sw div { height: 110px; border-radius: 14px; border: var(--glass-border); display: flex; align-items: flex-end; padding: 8px 10px; font-size: 13px; color: var(--text); text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+      .beamBar { height: 54px; border-radius: 14px; background: var(--beam); }
+      .type div { line-height: 1.1; }
+      .t-h1 { font-family: var(--font-display); font-size: var(--fs-h1); font-weight: var(--fw-bold); letter-spacing: var(--track-display); }
+      .t-h2 { font-size: var(--fs-h2); font-weight: var(--fw-bold); letter-spacing: -0.02em; }
+      .t-card { font-size: var(--fs-card); font-weight: var(--fw-bold); }
+      .t-body { font-size: var(--fs-body); color: var(--mute); }
+      .t-num { font-family: var(--font-num); font-size: 54px; font-weight: var(--fw-bold); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+      .card { padding: 24px; }
+      .row { display: flex; justify-content: space-between; margin-top: 12px; padding: 12px 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); font-size: 18px; color: var(--mute); }
+      .row em { font-style: normal; font-weight: 700; color: var(--text); }
+      .pill { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: var(--r-pill); font-size: 15px; font-weight: 700; }
+      .pa { background: rgba(45, 200, 196, 0.16); color: var(--a); }
+      .pb { background: rgba(254, 203, 83, 0.16); color: var(--b); }
+      .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+      .btn { height: 54px; padding: 0 24px; border-radius: var(--r-btn); display: flex; align-items: center; font-size: 18px; font-weight: 700; color: var(--ink2); }
+      .photos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .photos div { height: 200px; border-radius: 18px; overflow: hidden; border: var(--glass-border); background: var(--ink3); }
+      .photos img { width: 100%; height: 100%; object-fit: cover; }
+      .motion { font-size: 15px; color: var(--mute); line-height: 1.6; }
+      .motion b { color: var(--text); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="1" data-width="1920" data-height="1080">
+      <section id="s" class="clip" data-start="0" data-duration="1" data-track-index="0">
+        <div id="gA" class="glow"></div><div id="gB" class="glow"></div>
+        <div id="board">
+          <div id="head"><h1>Design <span class="g">system.</span></h1><div id="logo"><!--LOGO: <img src="assets/brand/logo.svg" alt="" /> -->Client<span class="g">Logo</span></div></div>
+
+          <div class="panel glass">
+            <span class="lbl">Colour · one meaning each</span>
+            <div class="sw">
+              <div style="background: var(--ink)">ink</div><div style="background: var(--ink2)">ink2</div><div style="background: var(--ink3)">ink3</div><div style="background: var(--text); color: var(--ink)">text</div>
+              <div style="background: var(--a); color: var(--ink)">A</div><div style="background: var(--a2); color: var(--ink)">A2</div><div style="background: var(--b); color: var(--ink)">B</div><div style="background: var(--b2); color: var(--ink)">B2</div>
+            </div>
+            <span class="lbl">Signature gradient</span>
+            <div class="beamBar"></div>
+            <span class="lbl">Background · base + glows + photos</span>
+            <div class="photos"><div><!-- <img src="assets/img/photo1.jpg" alt="" /> --></div><div><!-- <img src="assets/img/photo2.jpg" alt="" /> --></div></div>
+          </div>
+
+          <div class="panel glass type">
+            <span class="lbl">Type scale</span>
+            <div class="t-h1">Headline <span class="g">word.</span></div>
+            <div class="t-h2">Section title</div>
+            <div class="t-card">Card title</div>
+            <div class="t-body">Body text for cards and captions, kept above 20px in 1080p.</div>
+            <div class="t-num g">$1,240.00</div>
+            <span class="lbl">Label · uppercase</span>
+          </div>
+
+          <div class="panel" style="padding: 0; gap: 24px">
+            <div class="card glass"><span class="lbl">Glass card</span><div class="t-card" style="margin: 10px 0 12px">Real UI in the brand</div><span class="pill pa">Side A</span> <span class="pill pb">Side B</span>
+              <div class="row"><span>Price</span><em>$28</em></div><div class="row"><span>Rating</span><em>4.9</em></div></div>
+            <div class="btns"><span class="btn" style="background: var(--btn-a)">Primary action</span><span class="btn" style="background: var(--btn-b)">Secondary action</span></div>
+            <div class="card glass motion"><span class="lbl">Motion</span><br />
+              <b>Arrive</b> expo.out · <b>Leave</b> power3.in · <b>Camera</b> power3.inOut · <b>Drift</b> sine.inOut<br />
+              <b>Flight</b> 0.85s · <b>Morph</b> 0.6s · <b>Blur peak</b> 4px · <b>Camera</b> rotY ±12°, z 0–450</div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script>
+      window.__timelines["main"] = gsap.timeline({ paused: true }).to("#gA", { x: 40, duration: 1 }, 0);
+    </script>
+  </body>
+</html>

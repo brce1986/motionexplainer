@@ -31,6 +31,7 @@ MotionExplainer is an agent skill for [Claude Code](https://claude.com/claude-co
 | 🎙️ **A voice that is checked** | Azure Speech HD neural voices (Gemini TTS as fallback). Every take, and the final mix, is transcribed and compared with the script, so no word gets lost. |
 | 🎵 **Sound locked to the words** | Music and SFX synthesised in code (zero licensing). The brand line lands on a downbeat, and every SFX sits on the word it illustrates. |
 | 🔍 **A glitch hunt before delivery** | 10 fps contact sheets of the **rendered MP4** around every transition, checked against a list of real-world glitches. |
+| 🧩 **A design system per video** | Brand + references merge into `tokens.css` and a style board you approve before a single scene is built. |
 | 🎞️ **Tuned to your taste** | Send ≥3 reference videos (YouTube is fine). The skill reads their pace, camera and transitions, and borrows from them. |
 
 <table>
@@ -43,6 +44,8 @@ MotionExplainer is an agent skill for [Claude Code](https://claude.com/claude-co
 <td align="center"><sub>Lockup: the logo lifts to make room for the CTA and URL</sub></td>
 </tr>
 </table>
+
+<p align="center"><img src="docs/design-system.png" alt="The style board: palette, signature gradient, type scale, glass card, buttons and motion tokens" width="80%" /><br /><sub>G2b: every video starts with its own design system (here, the template's default tokens)</sub></p>
 
 ## 🚀 Quick start
 
@@ -91,12 +94,13 @@ On its first reply, the skill **checks your setup** and **tells you exactly what
 - ✅ the **product logo**: SVG preferred, so it can be animated part by part
 - ✅ **at least 3 reference videos**
 - ✅ **Azure Speech** key + region (primary voice + transcription check) and a **Gemini** key (fallback)
+- ➕ optional: free **Pexels / Pixabay** keys for extra stock photos
 - ✅ format (16:9 / 9:16), duration, VO language, CTA
 
 ## 🧭 The pipeline
 
 ```
- G1 References ──► G2 Brand & story ──► G3 Script + beat sheet ──► ✋ your approval
+ G1 References ──► G2 Brand & story ──► G2b Design system ✋ ──► G3 Script + beat sheet ✋
                                                                         │
  G8 Render 60fps ◄── G7 Glitch hunt ◄── G6 Build ◄── G5 Soundtrack ◄── G4 Voice (2 takes, checked)
 ```
@@ -117,6 +121,7 @@ Each gate shows its result before moving on. You can ask for several cuts (e.g. 
 | **Azure Speech** | HD voices + transcription check | Azure portal → *Speech* resource |
 | **Gemini API** | fallback voice | Google AI Studio |
 | yt-dlp *(optional)* | reference video frames | `pip install yt-dlp` |
+| Pexels / Pixabay keys *(optional)* | stock photos to fill gaps, with credits | free at pexels.com/api · pixabay.com/api/docs |
 | Playwright *(optional)* | brand extraction without a browser tool (Codex) | `pip install playwright && python -m playwright install chromium` |
 
 ## 📁 What's inside
@@ -128,6 +133,8 @@ motionexplainer/
 ├── references/
 │   ├── style.md                # the house style: camera, glass, flights, morphs, brand, lockup
 │   ├── brand-extraction.md     # tokens, fonts, photos, the story
+│   ├── design-system.md        # G2b: brand + references → tokens.css + style board
+│   ├── stock-images.md         # optional Pexels / Pixabay, licences and credits
 │   ├── reference-videos.md     # how references are read and what to borrow
 │   ├── script.md               # script + beat sheet rules
 │   ├── audio.md                # voices, checks, breath, soundtrack
@@ -144,9 +151,12 @@ motionexplainer/
 │   ├── extract_brand.js        # run in the client's page → brand tokens JSON
 │   ├── extract_brand.py        # same from the shell (Playwright, or an HTTP/CSS fallback)
 │   ├── ref_frames.py           # contact sheets of a reference video
+│   ├── fetch_stock.py          # optional stock photos + credits.json
 │   └── sheets.py               # 10 fps contact sheets for the glitch hunt
 ├── templates/
 │   ├── composition.html        # base composition with every style helper
+│   ├── design-system.html      # the style board (renders tokens.css)
+│   ├── tokens.example.css      # design tokens to start from
 │   └── cues.example.json
 └── assets/vendor/devices.css   # phone mockups (MIT)
 ```

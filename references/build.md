@@ -16,7 +16,7 @@
 ## Starting
 1. `npx --yes hyperframes@<version> init video --example blank --resolution landscape --non-interactive` (or `portrait` for 9:16).
 2. Copy `templates/composition.html` to `video/index.html` and set the size, duration and brand tokens.
-3. Put the client's fonts in `video/assets/fonts`, photos in `video/assets/img`, the mix in `video/assets/audio/mix.mp3`.
+3. Copy the approved `tokens.css` (G2b) next to `index.html`. Put the client's fonts in `video/assets/fonts`, photos in `video/assets/img`, the mix in `video/assets/audio/mix.mp3`.
 4. **The logo:** `python scripts/logo_split.py client-logo.svg --groups 5,2,2,2 > logo_snippet.html`. Paste the result where the template says `<!--LOGO-->`. Each group gets a class (`lg-a`, `lg-b`…) and the first gradient-filled path gets `id="lg-mark"`. Open the SVG first to decide the groups (words, the mark, ™).
 
 ## Rules the runtime enforces (read hyperframes-core if available)

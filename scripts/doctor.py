@@ -82,6 +82,8 @@ print("\nKeys (values hidden)")
 row("AZURE_SPEECH_KEY", has("AZURE_SPEECH_KEY"), "primary voice + transcription check", required=False)
 row("AZURE_SPEECH_REGION", has("AZURE_SPEECH_REGION"), "e.g. eastus", required=False)
 row("GEMINI_API_KEY", has("GEMINI_API_KEY"), "fallback voice", required=False)
+row("PEXELS_API_KEY", has("PEXELS_API_KEY"), "optional: stock photos", required=False)
+row("PIXABAY_API_KEY", has("PIXABAY_API_KEY"), "optional: stock photos", required=False)
 if not (has("AZURE_SPEECH_KEY") or has("GEMINI_API_KEY")):
     missing_required.append("a TTS key (Azure or Gemini)")
     print("  !! at least one TTS key is required (Azure preferred: it also enables the transcription check)")
